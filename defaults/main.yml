@@ -1,0 +1,6 @@
+control_packages:
+  - ansible
+  - git
+
+moc_inventory_repo: https://github.com/CCI-MOC/moc-inventory-prod
+moc_playbooks_repo: https://github.com/CCI-MOC/moc-ansible-infra

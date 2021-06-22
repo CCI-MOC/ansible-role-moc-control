@@ -1,0 +1,38 @@
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: check that ansible is installed
+    command: rpm -q ansible
+    register: ansible_check
+
+  - name: assert that ansible is installed
+    assert:
+      that: ansible_check is success
+
+  - name: check that playbooks and inventory are installed
+    become: true
+    stat:
+      path: "{{ item }}"
+    register: git_check
+    loop:
+      - /home/ansible/playbooks
+      - /home/ansible/inventory
+
+  - name: assert that playbooks and inventory are installed
+    assert:
+      that: item is success
+    loop: "{{ git_check.results }}"
+
+  - name: check that systemd units are installed
+    stat:
+      path: "{{ item }}"
+    register: unit_check
+    loop:
+      - /etc/systemd/system/moc-ansible.service
+      - /etc/systemd/system/moc-ansible.timer
+
+  - name: assert that systemd units are installed
+    assert:
+      that: item is success
+    loop: "{{ unit_check.results }}"

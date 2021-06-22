@@ -1,0 +1,50 @@
+- name: ensure required packages are installed
+  become: true
+  package:
+    name: "{{ control_packages }}"
+    state: installed
+
+- name: ensure ansible user exists
+  become: true
+  user:
+    state: present
+    name: ansible
+    comment: Ansible User
+    create_home: true
+    generate_ssh_key: true
+
+- name: check out inventory
+  become: true
+  become_user: ansible
+  git:
+    repo: "{{ moc_inventory_repo }}"
+    dest: /home/ansible/inventory
+    force: true
+
+- name: check out playbooks
+  become: true
+  become_user: ansible
+  git:
+    repo: "{{ moc_playbooks_repo }}"
+    dest: /home/ansible/playbooks
+    force: true
+
+- name: install systemd units
+  become: true
+  template:
+    src: "{{ item }}"
+    dest: /etc/systemd/system
+  loop:
+    - moc-ansible.timer
+    - moc-ansible.service
+  notify: reload systemd
+
+- meta: flush_handlers
+
+- name: enable periodic playbook runs
+  become: true
+  service:
+    name: moc-ansible.timer
+    state: started
+    enabled: true
+  when: manage_services|default(true)

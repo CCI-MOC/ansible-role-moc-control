@@ -1,0 +1,7 @@
+[Service]
+Type=simple
+User=ansible
+WorkingDirectory=/home/ansible/playbooks
+Environment=ANSIBLE_INVENTORY=/home/ansible/inventory
+ExecStartPre=/usr/bin/ansible-playbook update.yml
+ExecStart=/usr/bin/ansible-playbook site.yml
